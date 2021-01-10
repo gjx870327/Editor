@@ -1,6 +1,8 @@
 import { readdir, rename, pathExists } from "fs-extra";
 import { join, basename, resolve } from "path";
 
+import { IStringDictionary } from "../../../shared/types";
+
 import { Node } from "babylonjs";
 
 import { Editor } from "../editor";
@@ -11,6 +13,7 @@ import { Overlay } from "../gui/overlay";
 
 import { Project } from "./project";
 import { WorkSpace } from "./workspace";
+import { FilesStore, IFile } from "./files";
 
 export class ProjectRenamer {
     /**
@@ -36,6 +39,21 @@ export class ProjectRenamer {
     private static async _Rename(editor: Editor, name: string): Promise<void> {
         if (!Project.DirPath || !WorkSpace.DirPath) { return; }
         if (!Project.Path || ! WorkSpace.Path) { return; }
+
+        // Rename files store
+        const newFileStore: IStringDictionary<IFile> = { };
+        for (const f in FilesStore.List) {
+            const newPath = f.replace(
+                join(WorkSpace.DirPath!, "projects", WorkSpace.GetProjectName()),
+                join(WorkSpace.DirPath!, "projects", name),
+            );
+            newFileStore[newPath] = {
+                path: newPath,
+                name: FilesStore.List[f].name,
+            };
+        }
+
+        FilesStore.List = newFileStore;
 
         const files = await readdir(join(WorkSpace.DirPath, "projects"));
 
@@ -93,5 +111,8 @@ export class ProjectRenamer {
         // Update workspace
         WorkSpace.Workspace!.lastOpenedScene = join("projects", name, basename(Project.Path));
         await WorkSpace.WriteWorkspaceFile(Project.Path);
+
+        // Update assets
+        await editor.assets.refresh();
     }
 }

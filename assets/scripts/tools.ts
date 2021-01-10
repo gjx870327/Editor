@@ -42,11 +42,13 @@ export interface IScript {
     onMessage?(name: string, data: any, sender: any): void;
 }
 
+import { scriptsMap } from "./scripts-map";
+
 /**
  * Requires the nedded scripts for the given nodes array and attach them.
  * @param nodes the array of nodes to attach script (if exists).
  */
-function requireScriptForNodes(scriptsMap: ScriptMap, nodes: (Node | Scene)[]): void {
+function requireScriptForNodes(nodes: (Node | Scene)[]): void {
     const initializedNodes: { node: Node | Scene; exports: any; }[] = [];
 
     // Initialize nodes
@@ -184,12 +186,12 @@ function requireScriptForNodes(scriptsMap: ScriptMap, nodes: (Node | Scene)[]): 
  * Attaches all available scripts on nodes of the given scene.
  * @param scene the scene reference that contains the nodes to attach scripts.
  */
-export function attachScripts(scriptsMap: ScriptMap, scene: Scene): void {
-    requireScriptForNodes(scriptsMap, scene.meshes);
-    requireScriptForNodes(scriptsMap, scene.lights);
-    requireScriptForNodes(scriptsMap, scene.cameras);
-    requireScriptForNodes(scriptsMap, scene.transformNodes);
-    requireScriptForNodes(scriptsMap, [scene]);
+export function attachScripts(scene: Scene): void {
+    requireScriptForNodes(scene.meshes);
+    requireScriptForNodes(scene.lights);
+    requireScriptForNodes(scene.cameras);
+    requireScriptForNodes(scene.transformNodes);
+    requireScriptForNodes([scene]);
 
     // Graphs
     for (const scriptKey in scriptsMap) {
@@ -219,12 +221,12 @@ export function setupRenderingGroups(scene: Scene): void {
  * @param scriptsKey defines the key in the scripts map of the script to attach to the given object.
  * @param object defines the reference to the object that the script must be attached to.
  */
-export function attachScriptToNodeAtRumtine(scriptsMap: ScriptMap, scriptsKey: string, object: Node | Scene): any {
+export function attachScriptToNodeAtRumtine(scriptsKey: string, object: Node | Scene): any {
     object.metadata = object.metadata ?? { };
     object.metadata.script = object.metadata.script ?? { };
     object.metadata.script.name = scriptsKey;
 
-    requireScriptForNodes(scriptsMap, [object]);
+    requireScriptForNodes([object]);
 }
 
 /**
@@ -278,5 +280,3 @@ export function configurePostProcesses(scene: Scene, rootUrl: string = null): vo
         return texture;
     };
 })();
-
-// ${decorators}

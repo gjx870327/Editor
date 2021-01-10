@@ -4,23 +4,9 @@
 
 import { Node, Scene } from "@babylonjs/core";
 import {
-    ScriptMap, attachScripts, attachScriptToNodeAtRumtine,
+    attachScripts, attachScriptToNodeAtRumtine,
     configurePostProcesses, setupRenderingGroups,
 } from "../tools";
-
-/**
- * Defines the interface that exposes all exported scripts in this project.
- */
-export interface ISceneScriptMap extends ScriptMap {
-// ${scriptsInterface}
-}
-
-/**
- * Defines the map of all available scripts in the project.
- */
-export const scriptsMap: ISceneScriptMap = {
-// ${scripts}
-}
 
 /**
  * Works as an helper, this will:
@@ -29,7 +15,7 @@ export const scriptsMap: ISceneScriptMap = {
  */
 export async function runScene(scene: Scene, rootUrl?: string): Promise<void> {
     // Attach scripts to objects in scene.
-    attachScripts(scriptsMap, scene);
+    attachScripts(scene);
 
     // Configure post-processes
     configurePostProcesses(scene, rootUrl);
@@ -44,5 +30,5 @@ export async function runScene(scene: Scene, rootUrl?: string): Promise<void> {
  * @param object defines the reference to the object (node or scene) to attach the script to.
  */
 export function attachScriptToObjectImmediately(scriptPath: string, object: Node | Scene): void {
-    attachScriptToNodeAtRumtine(scriptsMap, scriptPath, object);
+    attachScriptToNodeAtRumtine(scriptPath, object);
 }
